@@ -14,3 +14,5 @@ __pycache__/
 
 # Kişisel gizli anahtarlar, credentials
 *.env
+data/raw/crypto_news.csv
+data/raw/*.csv
