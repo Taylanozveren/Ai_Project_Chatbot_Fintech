@@ -1,5 +1,2 @@
-# Tüm metin dosyalarında LF’ye zorla
 * text=auto eol=lf
-
-# CSV dosyalarını Windows stilinde (CRLF) bırak
 *.csv text eol=crlf
