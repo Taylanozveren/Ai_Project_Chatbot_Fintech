@@ -1,0 +1,16 @@
+# Python sanal ortam
+venv/
+
+# Python cache
+__pycache__/
+*.py[cod]
+
+# VSCode veya PyCharm ayarları
+.vscode/
+.idea/
+
+# NumPy / Pandas temp dosyaları
+*.npy
+
+# Kişisel gizli anahtarlar, credentials
+*.env
