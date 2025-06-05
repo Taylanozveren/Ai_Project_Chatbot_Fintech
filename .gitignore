@@ -16,3 +16,4 @@ __pycache__/
 *.env
 data/raw/crypto_news.csv
 data/raw/*.csv
+dashboard_data
