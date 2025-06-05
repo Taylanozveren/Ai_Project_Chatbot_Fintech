@@ -1,19 +1,42 @@
-# Python sanal ortam
-venv/
-
-# Python cache
+# =======================================
+# Python: temp/cache derleme dosyaları
+# =======================================
 __pycache__/
 *.py[cod]
+*.pyo
+*.pyd
+*.pyc
+*.so
 
-# VSCode veya PyCharm ayarları
+# =======================================
+# Proje: çıktılar, model dosyaları, analizler
+# =======================================
+
+# verilerin işlenmiş halleri
+data/processed/
+data/raw/*.csv
+
+# model çıktıları, shap, scaler, pickle vs.
+models/
+*.pkl
+*.npy
+*.joblib
+*.txt
+
+# tahmin sonuçları, AUC, confusion, walk metrics...
+results/
+
+# dashboard özel
+dashboard_data/
+*.parquet
+
+# jupyter notebook checkpointleri
+.ipynb_checkpoints/
+
+# IDE klasörleri
 .vscode/
 .idea/
 
-# NumPy / Pandas temp dosyaları
-*.npy
-
-# Kişisel gizli anahtarlar, credentials
-*.env
-data/raw/crypto_news.csv
-data/raw/*.csv
-dashboard_data
+# MacOS / Windows özel sistem dosyaları
+.DS_Store
+Thumbs.db
