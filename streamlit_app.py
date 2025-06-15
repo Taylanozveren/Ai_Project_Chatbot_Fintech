@@ -28,8 +28,8 @@ will be materially lower.
 **Why does BTC favor Deep Learning but ETH favor Machine Learning?**  
 - **BTC (DL > ML):** Our multi-task LSTM captures 1-day, 3-day and 5-day trends  
   in one model and so rides long bull runs more completely.  
-- **ETH (ML > DL):** The LightGBM “3-day, +2%” model issues more aggressive  
-  buy signals around ETH’s short, sharp rallies—boosting its theoretical return.
+- **ETH (ML > DL):** The LightGBM "3-day, +2%" model issues more aggressive  
+  buy signals around ETH's short, sharp rallies—boosting its theoretical return.
 """
 
 # Configuration
@@ -115,28 +115,57 @@ with st.sidebar:
     show_metrics = st.checkbox("Show Detailed Metrics", True)
     show_backtest = st.checkbox("Show Backtest", True)
 
+    # Force refresh button to clear cache
+    if st.button("🔄 Force Refresh Data"):
+        st.cache_data.clear()
+        st.cache_resource.clear()
+        st.rerun()
+
+    # Show last data update time
+    try:
+        data_file = ML_DATA / f"{coin}_full.parquet"
+        if data_file.exists():
+            mod_time = datetime.fromtimestamp(data_file.stat().st_mtime)
+            st.caption(f"📅 Data Updated: {mod_time.strftime('%Y-%m-%d %H:%M')}")
+    except:
+        pass
+
 # Utility functions
-@st.cache_data
-def load_ml_data(coin_name):
+def get_file_hash(file_path):
+    """Get file modification time as hash for cache invalidation"""
+    try:
+        return str(file_path.stat().st_mtime)
+    except:
+        return str(datetime.now().timestamp())
+
+@st.cache_data(ttl=60)  # Reduced cache time to 1 minute
+def load_ml_data(coin_name, _file_hash=None):
     try:
         df = pd.read_parquet(ML_DATA / f"{coin_name}_full.parquet")
         model = joblib.load(ML_DATA / f"{coin_name}_model.pkl")
         shap_vals = np.load(ML_DATA / f"{coin_name}_shap.npy")
         features = joblib.load(ML_DATA / "feature_list.pkl")
+
+        # ✅ Date column handling - ensure proper datetime format
+        if 'Date' in df.columns:
+            if df['Date'].dtype == 'object':
+                df['Date'] = pd.to_datetime(df['Date'])
+            df = df.sort_values('Date').reset_index(drop=True)
+
         return df, model, shap_vals, features
     except Exception as e:
         st.error(f"❌ Error loading ML data: {e}")
         return None, None, None, None
 
-@st.cache_data
+@st.cache_data(ttl=300)
 def load_walk_forward():
     try:
         return pd.read_csv(ML_RES / "walk_metrics_v6.csv")
     except:
         return pd.DataFrame()
 
-@st.cache_resource
-def load_dl_model(coin_name):
+@st.cache_resource(ttl=60)  # Reduced cache time
+def load_dl_model(coin_name, _file_hash=None):
     try:
         seq_data = np.load(DL_SEQ_DIR / f"{coin_name}_seq.npz")
         dl_model = tf.keras.models.load_model(DL_MODEL_DIR / f"{coin_name}_lstm_mt.h5")
@@ -248,6 +277,20 @@ def create_shap_chart(shap_values, feature_names, feature_values, top_n=10):
 
     return fig
 
+def format_date_safely(date_obj):
+    """Safely format date object to string"""
+    try:
+        if pd.isna(date_obj):
+            return "N/A"
+        if isinstance(date_obj, pd.Timestamp):
+            return date_obj.strftime("%Y-%m-%d")
+        elif isinstance(date_obj, str):
+            return pd.to_datetime(date_obj).strftime("%Y-%m-%d")
+        else:
+            return str(date_obj)
+    except:
+        return "Invalid Date"
+
 # Main header
 st.markdown("""
 <div class="main-header">
@@ -256,37 +299,61 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# Load data
+# Load data with file change detection
 data_loaded = False
+file_hash = get_file_hash(ML_DATA / f"{coin}_full.parquet")
+
 if panel == "🤖 ML Panel":
-    ml_data = load_ml_data(coin)
+    ml_data = load_ml_data(coin, _file_hash=file_hash)
     if ml_data[0] is not None:
         df, model, shap_vals, feat_names = ml_data
         data_loaded = True
 else:
-    dl_data = load_dl_model(coin)
+    dl_data = load_dl_model(coin, _file_hash=file_hash)
     if dl_data[0] is not None:
         seq_data, dl_model = dl_data
-        df = pd.read_parquet(ML_DATA / f"{coin}_full.parquet")
+        df_raw = pd.read_parquet(ML_DATA / f"{coin}_full.parquet")
+
+        # ✅ Ensure proper date handling for DL panel
+        df = df_raw.copy()
+        if 'Date' in df.columns:
+            if df['Date'].dtype == 'object':
+                df['Date'] = pd.to_datetime(df['Date'])
+            df = df.sort_values('Date').reset_index(drop=True)
+
         data_loaded = True
 
 if not data_loaded:
     st.error("❌ Unable to load required data files. Please check your data directory.")
     st.stop()
 
-# Latest data display
+# Latest data display with safe date formatting
 latest = df.iloc[-1]
 col1, col2, col3, col4 = st.columns(4)
 
 with col1:
-    st.metric("📅 Latest Date", latest['Date'].strftime("%Y-%m-%d"))
+    # ✅ Safe date formatting
+    formatted_date = format_date_safely(latest['Date'])
+    st.metric("📅 Latest Date", formatted_date)
+
 with col2:
     st.metric("💰 Close Price", f"${latest['Close']:.2f}")
+
 with col3:
-    price_change = ((latest['Close'] - df.iloc[-2]['Close']) / df.iloc[-2]['Close']) * 100
-    st.metric("📈 24h Change", f"{price_change:+.2f}%")
+    try:
+        if len(df) > 1:
+            price_change = ((latest['Close'] - df.iloc[-2]['Close']) / df.iloc[-2]['Close']) * 100
+            st.metric("📈 24h Change", f"{price_change:+.2f}%")
+        else:
+            st.metric("📈 24h Change", "N/A")
+    except:
+        st.metric("📈 24h Change", "N/A")
+
 with col4:
-    st.metric("📊 Volume", f"{latest.get('Volume', 0):,.0f}")
+    volume = latest.get('Volume', 0)
+    if pd.isna(volume):
+        volume = 0
+    st.metric("📊 Volume", f"{volume:,.0f}")
 
 st.markdown("---")
 
@@ -298,7 +365,9 @@ if panel == "🤖 ML Panel":
         st.markdown(INFO_TEXT)
 
     # Signal display
-    prob = latest["prob"]
+    prob = latest.get("prob", 0.0)
+    if pd.isna(prob):
+        prob = 0.0
     create_signal_card(prob, threshold, "ML")
 
     # Metrics and backtest
@@ -311,38 +380,51 @@ if panel == "🤖 ML Panel":
 
                 # 2024 test metrics
                 test_mask = df["Date"] >= ML_TEST_DATE
-                y_true = df.loc[test_mask, "bin_h3_thr2"].astype(int)
-                y_prob = df.loc[test_mask, "prob"]
-                y_pred = (y_prob > threshold).astype(int)
+                if test_mask.sum() > 0:
+                    y_true = df.loc[test_mask, "bin_h3_thr2"].astype(int)
+                    y_prob = df.loc[test_mask, "prob"].fillna(0)
+                    y_pred = (y_prob > threshold).astype(int)
 
-                auc_score = roc_auc_score(y_true, y_prob)
-                accuracy = accuracy_score(y_true, y_pred)
+                    auc_score = roc_auc_score(y_true, y_prob)
+                    accuracy = accuracy_score(y_true, y_pred)
 
-                metric_col1, metric_col2 = st.columns(2)
-                metric_col1.metric("🎯 AUC Score", f"{auc_score:.3f}")
-                metric_col2.metric("✅ Accuracy", f"{accuracy:.3f}")
+                    metric_col1, metric_col2 = st.columns(2)
+                    metric_col1.metric("🎯 AUC Score", f"{auc_score:.3f}")
+                    metric_col2.metric("✅ Accuracy", f"{accuracy:.3f}")
 
-                # Confusion matrix
-                st.plotly_chart(create_confusion_matrix(y_true, y_pred), use_container_width=True)
+                    # Confusion matrix
+                    st.plotly_chart(create_confusion_matrix(y_true, y_pred), use_container_width=True)
+                else:
+                    st.warning("No test data available for 2024+")
 
         with col2:
             if show_backtest:
                 st.markdown("### 💹 Strategy Performance")
-                equity = backtest(df[["Date", "Close", "prob"]].copy(), threshold)
+                try:
+                    backtest_df = df[["Date", "Close", "prob"]].copy().dropna()
+                    if len(backtest_df) > 0:
+                        equity = backtest(backtest_df, threshold)
 
-                final_return = equity["Equity"].iloc[-1]
-                bh_return = equity["Buy&Hold"].iloc[-1]
+                        final_return = equity["Equity"].iloc[-1]
+                        bh_return = equity["Buy&Hold"].iloc[-1]
 
-                perf_col1, perf_col2 = st.columns(2)
-                perf_col1.metric("🎯 Strategy Return", f"{final_return:.2f}x")
-                perf_col2.metric("📈 Buy & Hold", f"{bh_return:.2f}x")
+                        perf_col1, perf_col2 = st.columns(2)
+                        perf_col1.metric("🎯 Strategy Return", f"{final_return:.2f}x")
+                        perf_col2.metric("📈 Buy & Hold", f"{bh_return:.2f}x")
 
-                st.plotly_chart(create_performance_chart(equity, f"{coin.upper()} ML Strategy"), use_container_width=True)
+                        st.plotly_chart(create_performance_chart(equity, f"{coin.upper()} ML Strategy"), use_container_width=True)
+                    else:
+                        st.warning("No valid data for backtesting")
+                except Exception as e:
+                    st.error(f"Backtest error: {e}")
 
     # SHAP analysis
     with st.expander("🔍 Feature Importance Analysis"):
-        fig_shap = create_shap_chart(shap_vals[-1], feat_names, latest[feat_names])
-        st.plotly_chart(fig_shap, use_container_width=True)
+        try:
+            fig_shap = create_shap_chart(shap_vals[-1], feat_names, latest[feat_names])
+            st.plotly_chart(fig_shap, use_container_width=True)
+        except Exception as e:
+            st.error(f"SHAP analysis error: {e}")
 
 # ─────────────────────────────────────────────────── DL PANEL ───────────────────────────────────────────────────
 else:
@@ -352,60 +434,64 @@ else:
         st.markdown(INFO_TEXT)
 
     try:
-        # 1) Dizilerimizi oku
+        # 1) Read sequences
         seq = seq_data["X"]
         all_preds = dl_model.predict(seq, verbose=0)
 
-        # 2) 3-günlük (h3) long-prob serisini al
+        # 2) Get 3-day (h3) long-prob series
         if isinstance(all_preds, list):
-            dl_prob_series = all_preds[1].ravel()    # ikinci çıkış = h3
+            dl_prob_series = all_preds[1].ravel()    # second output = h3
         else:
             dl_prob_series = all_preds.ravel()
 
-        # 3) Bugünün sinyalini göster
+        # 3) Show today's signal
         main_prob = float(dl_prob_series[-1])
         create_signal_card(main_prob, threshold, "DL")
 
-        # 4) (opsiyonel) Multi-horizon yazdır
+        # 4) Multi-horizon predictions (optional)
         st.markdown("### 🔮 Multi-Horizon Predictions")
-        # Eğer elinde h1,h3,h5 serileri de varsa onları burada gösterebilirsin
+        # Add multi-horizon display here if needed
 
-        # 5) Backtest için doğru başlangıç indeksini hesapla
-        #    pencere uzunluğunu dinamik oku:
+        # 5) Calculate correct start index for backtest
         seq_len = seq.shape[1]
 
-        # 6) df_dl.prob sütununu NaN ile başlat
+        # 6) Initialize df_dl.prob with NaN
         df_dl = df.copy()
         df_dl["prob"] = np.nan
 
-        # 7) DL tahminlerini doğru tarihe eşle
+        # 7) Map DL predictions to correct dates
         start_idx = seq_len
-        df_dl.iloc[start_idx : start_idx + len(dl_prob_series), df_dl.columns.get_loc("prob")] = dl_prob_series
+        end_idx = start_idx + len(dl_prob_series)
+        if end_idx <= len(df_dl):
+            df_dl.iloc[start_idx:end_idx, df_dl.columns.get_loc("prob")] = dl_prob_series
 
-        # 8) NaN olmayan kısımla backtest
-        equity_dl = backtest(
-            df_dl.dropna(subset=["prob"])[["Date","Close","prob"]].copy(),
-            threshold
-        )
+        # 8) Backtest with non-NaN portion
+        valid_data = df_dl.dropna(subset=["prob"])
+        if len(valid_data) > 0:
+            equity_dl = backtest(
+                valid_data[["Date","Close","prob"]].copy(),
+                threshold
+            )
 
-        # 9) Performans metrikleri
-        final_return = equity_dl["Equity"].iloc[-1]
-        bh_return    = equity_dl["Buy&Hold"].iloc[-1]
+            # 9) Performance metrics
+            final_return = equity_dl["Equity"].iloc[-1]
+            bh_return = equity_dl["Buy&Hold"].iloc[-1]
 
-        c1, c2 = st.columns(2)
-        c1.metric("🎯 DL Strategy Return", f"{final_return:.2f}×")
-        c2.metric("📈 Buy & Hold",           f"{bh_return:.2f}×")
+            c1, c2 = st.columns(2)
+            c1.metric("🎯 DL Strategy Return", f"{final_return:.2f}×")
+            c2.metric("📈 Buy & Hold", f"{bh_return:.2f}×")
 
-        # 10) Grafik
-        st.plotly_chart(
-            create_performance_chart(equity_dl, f"{coin.upper()} DL Strategy"),
-            use_container_width=True
-        )
+            # 10) Chart
+            st.plotly_chart(
+                create_performance_chart(equity_dl, f"{coin.upper()} DL Strategy"),
+                use_container_width=True
+            )
+        else:
+            st.warning("No valid DL predictions available for backtesting")
 
     except Exception as e:
         st.error(f"❌ DL prediction error: {e}")
         st.info("Check DL model / sequence length configuration.")
-
 
 # Walk-forward analysis
 walk_df = load_walk_forward()
