@@ -13,7 +13,8 @@ joblib==1.4.2
 
 # ───────── Deep-Learning (inference / retrain) ─────────
 tensorflow-cpu==2.15.0
-keras==2.15.0
+keras==3.3.1
+keras-core==0.1.7
 
 # ───────── visualisation ───────────
 matplotlib==3.8.4
