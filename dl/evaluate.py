@@ -67,7 +67,7 @@ def load_dates(sym, seq_len):
 
 
 def load_model(sym, arch):
-    model_path = MODEL_DIR / f"{sym}_{arch}.keras"
+    model_path = MODEL_DIR / f"{sym}_{arch}.h5"
     if not model_path.exists():
         print(f"[!] Model file not found: {model_path}, skipping {sym} {arch}.")
         return None

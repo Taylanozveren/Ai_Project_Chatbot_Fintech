@@ -71,7 +71,7 @@ def main():
         model = build_lstm_multitask(input_shape=X_train.shape[1:])
 
     # callbacks (checkpoint extension .h5 olarak)
-    ckpt_file = f"{args.sym}_{args.arch}.keras"
+    ckpt_file = f"{args.sym}_{args.arch}.h5"
     ckpt = MODELS_DIR / ckpt_file
     monitor = 'val_h3_auc_h3' if args.arch == 'lstm_mt' else 'val_auc'
 
