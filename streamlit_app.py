@@ -5,8 +5,9 @@ Enhanced ML + DL Analytics Platform
 # ── TensorFlow + eski (2.x) Keras yapılandırması ─────────────────────────
 # ── TensorFlow + eski (2.x) Keras yapılandırması ──
 import os
-os.environ["TF_USE_LEGACY_KERAS"] = "1"   # tf.keras 2.x’i zorla
-import tensorflow as tf                  # tf.keras = Keras 2.15
+os.environ["TF_USE_LEGACY_KERAS"] = "1"
+import tensorflow as tf        # tf.keras 2.15
+import sys                     #  ←  BU SATIRI GERİ EKLE !
 #  ⛔ Aşağıdaki alias’ları **SİL**
 # sys.modules["keras"] = tf.keras
 # sys.modules["keras.api._v2.keras"] = tf.keras
