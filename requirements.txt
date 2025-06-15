@@ -12,9 +12,8 @@ shap==0.43.0
 joblib==1.4.2
 
 # ───────── Deep-Learning (CPU) ─────
-tensorflow-cpu==2.15.0
-keras==2.15.0      # ← KESİN EKLE
-h5py==3.10.0       # güvenli .h5 yükleme
+tensorflow-cpu==2.15.0     # tf.keras 2.15 dahildir
+h5py==3.10.0               # .h5 dosyalarını açmak için
 
 # ───────── Visualisation ───────────
 matplotlib==3.8.4

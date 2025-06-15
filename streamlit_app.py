@@ -12,8 +12,14 @@ import plotly.graph_objects as go
 import plotly.express as px
 from plotly.subplots import make_subplots
 from sklearn.metrics import roc_auc_score, accuracy_score, confusion_matrix
-import tensorflow as tf
 from datetime import datetime, timedelta
+import tensorflow as tf
+import sys, types
+
+# Stand-alone Keras 3 yüklü olsa bile tüm "keras.*" çağrılarını tf.keras'a yönlendir
+sys.modules["keras"] = tf.keras
+sys.modules["keras.api._v2.keras"] = tf.keras          # bazı paketler bu yolu kullanır
+
 
 # ──────────────────────────────────────────────────────────────────────────
 #    🛈 Backtest & Strategy-Return Explanation (shared by ML & DL panels)
