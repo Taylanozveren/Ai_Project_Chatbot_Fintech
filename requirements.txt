@@ -13,7 +13,6 @@ joblib==1.4.2
 
 # ───────── Deep-Learning (CPU) ─────
 tensorflow-cpu==2.15.0      # tf.keras 2.15
-keras==2.15.0               # ‼️ Ekle → Keras 3 yerine eski sürüm gelir
 h5py==3.10.0
 
 # ───────── Visualisation ───────────

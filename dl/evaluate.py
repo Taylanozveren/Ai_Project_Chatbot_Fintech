@@ -71,7 +71,7 @@ def load_model(sym, arch):
     if not model_path.exists():
         print(f"[!] Model file not found: {model_path}, skipping {sym} {arch}.")
         return None
-    return tf.keras.models.load_model(model_path)
+    return tf.keras.models.load_model(model_path, compile=False)
 
 
 # --------------------

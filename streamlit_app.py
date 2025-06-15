@@ -3,13 +3,13 @@ Professional Crypto-Momentum Dashboard
 Enhanced ML + DL Analytics Platform
 """
 # ── TensorFlow + eski (2.x) Keras yapılandırması ─────────────────────────
+# ── TensorFlow + eski (2.x) Keras yapılandırması ──
 import os
-os.environ["TF_USE_LEGACY_KERAS"] = "1"   # tf.keras 2.x yolunu seçsin
-
-import tensorflow as tf                  # tf.keras bundan sonra hazır
-import sys
-sys.modules["keras"] = tf.keras          # herhangi bir 'import keras' çağrısı → tf.keras
-sys.modules["keras.api._v2.keras"] = tf.keras   # bazı paketler bu yolu kullanıyor
+os.environ["TF_USE_LEGACY_KERAS"] = "1"   # tf.keras 2.x’i zorla
+import tensorflow as tf                  # tf.keras = Keras 2.15
+#  ⛔ Aşağıdaki alias’ları **SİL**
+# sys.modules["keras"] = tf.keras
+# sys.modules["keras.api._v2.keras"] = tf.keras
 # ─────────────────────────────────────────────────────────────────────────
 
 # ↓ Artık diğer kütüphaneleri gönül rahatlığıyla içe aktarabilirsin
@@ -179,7 +179,8 @@ def load_dl_model(coin_name, _file_hash=None):
     try:
         seq_data = np.load(DL_SEQ_DIR / f"{coin_name}_seq.npz")
         dl_model = tf.keras.models.load_model(
-                 DL_MODEL_DIR / f"{coin}_lstm_mt.h5")
+            DL_MODEL_DIR / f"{coin}_lstm_mt.h5",
+            compile=False)  # 👈 eklendi
         return seq_data, dl_model
     except Exception as e:
         st.error(f"❌ Error loading DL model: {e}")
