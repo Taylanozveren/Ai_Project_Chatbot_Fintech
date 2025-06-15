@@ -1,6 +1,14 @@
 # dl/evaluate.py
 
 """
+FULL RUN TERMINAL CODES FOR EVALUATING:
+python dl/train.py --sym btc --arch cnn      --epochs 30 --batch 128
+python dl/train.py --sym btc --arch lstm     --epochs 30 --batch 128
+python dl/train.py --sym btc --arch lstm_mt  --epochs 30 --batch 128
+python dl/train.py --sym eth --arch cnn      --epochs 30 --batch 128
+python dl/train.py --sym eth --arch lstm     --epochs 30 --batch 128
+python dl/train.py --sym eth --arch lstm_mt  --epochs 30 --batch 128
+
 Evaluate DL models with walk-forward splits and compare performance.
 Supports single-output (lstm, cnn) and multi-output (lstm_mt) architectures.
 Generates AUC, accuracy, precision, recall for classification and MSE/MAE for regression.
@@ -18,21 +26,22 @@ from pathlib import Path
 # --------------------
 # Configuration
 # --------------------
-BASE_DIR   = Path(__file__).resolve().parent
-DATA_DIR   = BASE_DIR.parent / "data" / "processed"
-SEQ_DIR    = BASE_DIR / "outputs"
-MODEL_DIR  = SEQ_DIR / "models"
+BASE_DIR = Path(__file__).resolve().parent
+DATA_DIR = BASE_DIR.parent / "data" / "processed"
+SEQ_DIR = BASE_DIR / "outputs"
+MODEL_DIR = SEQ_DIR / "models"
 OUTPUT_DIR = BASE_DIR / "reports"
 # walk-forward splits
-SPLITS     = [
+SPLITS = [
     np.datetime64("2022-01-01"),
     np.datetime64("2023-01-01"),
     np.datetime64("2024-01-01")
 ]
 # architectures to evaluate
-ARCHS      = ["lstm", "cnn", "lstm_mt"]
-SYMBOLS    = ["btc", "eth"]
-THRESHOLD  = 0.5  # decision threshold for classification
+ARCHS = ["lstm", "cnn", "lstm_mt"]
+SYMBOLS = ["btc", "eth"]
+THRESHOLD = 0.5  # decision threshold for classification
+
 
 # --------------------
 # Data loading
@@ -44,16 +53,18 @@ def load_sequence(sym):
     y_class = arr['y_class']
     y_multi = {}
     # classification
-    for key in ['y_h1','y_h3','y_h5']:
+    for key in ['y_h1', 'y_h3', 'y_h5']:
         if key in arr: y_multi[key] = arr[key]
     # regression
-    for key in ['y_r3','y_r5']:
+    for key in ['y_r3', 'y_r5']:
         if key in arr: y_multi[key] = arr[key]
     return X, y_class, y_multi
+
 
 def load_dates(sym, seq_len):
     df = pd.read_csv(DATA_DIR / f"{sym}_features_ml_v6.csv", parse_dates=["Date"])
     return df['Date'].values[seq_len:]
+
 
 def load_model(sym, arch):
     model_path = MODEL_DIR / f"{sym}_{arch}.h5"
@@ -61,6 +72,7 @@ def load_model(sym, arch):
         print(f"[!] Model file not found: {model_path}, skipping {sym} {arch}.")
         return None
     return tf.keras.models.load_model(model_path)
+
 
 # --------------------
 # Evaluation
@@ -77,7 +89,7 @@ def evaluate_model(sym, arch):
     for step, split in enumerate(SPLITS, start=1):
         mask = dates >= split
         X_test = X[mask]
-        if len(X_test)==0:
+        if len(X_test) == 0:
             continue
 
         preds = model.predict(X_test)
@@ -86,16 +98,16 @@ def evaluate_model(sym, arch):
             preds = [preds]
 
         # single-output (tek çıkışlı) modeller
-        if arch in ['lstm','cnn']:
+        if arch in ['lstm', 'cnn']:
             y_test = y_class[mask]
-            prob   = preds[0].ravel()
-            pred   = (prob > THRESHOLD).astype(int)
+            prob = preds[0].ravel()
+            pred = (prob > THRESHOLD).astype(int)
             results.append({
                 'coin': sym, 'arch': arch, 'horizon': 'h3', 'step': step,
-                'auc': round(roc_auc_score(y_test, prob),3),
-                'accuracy': round(accuracy_score(y_test, pred),3),
-                'precision': round(precision_score(y_test, pred, zero_division=0),3),
-                'recall': round(recall_score(y_test, pred, zero_division=0),3),
+                'auc': round(roc_auc_score(y_test, prob), 3),
+                'accuracy': round(accuracy_score(y_test, pred), 3),
+                'precision': round(precision_score(y_test, pred, zero_division=0), 3),
+                'recall': round(recall_score(y_test, pred, zero_division=0), 3),
                 'mse': None, 'mae': None,
                 'n_test': int(len(y_test))
             })
@@ -104,32 +116,48 @@ def evaluate_model(sym, arch):
         else:
             # 0:h1, 1:h3, 2:h5, 3:r3, 4:r5
             # classification
-            for arr, horizon in zip(preds[:3], ['h1','h3','h5']):
+            for arr, horizon in zip(preds[:3], ['h1', 'h3', 'h5']):
                 y_test = y_multi[f'y_{horizon}'][mask]
-                prob   = arr.ravel()
-                pred   = (prob > THRESHOLD).astype(int)
+                prob = arr.ravel()
+                pred = (prob > THRESHOLD).astype(int)
                 results.append({
                     'coin': sym, 'arch': arch, 'horizon': horizon, 'step': step,
-                    'auc': round(roc_auc_score(y_test, prob),3),
-                    'accuracy': round(accuracy_score(y_test, pred),3),
-                    'precision': round(precision_score(y_test, pred, zero_division=0),3),
-                    'recall': round(recall_score(y_test, pred, zero_division=0),3),
+                    'auc': round(roc_auc_score(y_test, prob), 3),
+                    'accuracy': round(accuracy_score(y_test, pred), 3),
+                    'precision': round(precision_score(y_test, pred, zero_division=0), 3),
+                    'recall': round(recall_score(y_test, pred, zero_division=0), 3),
                     'mse': None, 'mae': None,
                     'n_test': int(len(y_test))
                 })
-            # regression
-            for arr, horizon in zip(preds[3:], ['r3','r5']):
+            # regression - NaN handling eklendi
+            for arr, horizon in zip(preds[3:], ['r3', 'r5']):
                 y_true = y_multi[f'y_{horizon}'][mask]
                 y_pred = arr.ravel()
+
+                # NaN değerleri filtrele
+                valid_mask = ~(np.isnan(y_true) | np.isnan(y_pred))
+
+                if np.sum(valid_mask) == 0:
+                    # Eğer hiç geçerli değer yoksa
+                    mse_val = None
+                    mae_val = None
+                    n_valid = 0
+                else:
+                    y_true_clean = y_true[valid_mask]
+                    y_pred_clean = y_pred[valid_mask]
+                    mse_val = round(mean_squared_error(y_true_clean, y_pred_clean), 3)
+                    mae_val = round(mean_absolute_error(y_true_clean, y_pred_clean), 3)
+                    n_valid = int(np.sum(valid_mask))
+
                 results.append({
                     'coin': sym, 'arch': arch, 'horizon': horizon, 'step': step,
                     'auc': None, 'accuracy': None, 'precision': None, 'recall': None,
-                    'mse': round(mean_squared_error(y_true, y_pred),3),
-                    'mae': round(mean_absolute_error(y_true, y_pred),3),
-                    'n_test': int(len(y_true))
+                    'mse': mse_val, 'mae': mae_val,
+                    'n_test': n_valid  # geçerli değer sayısını göster
                 })
 
     return results
+
 
 # --------------------
 # Main execution
@@ -147,8 +175,8 @@ if __name__ == '__main__':
     df.to_csv(out_path, index=False)
 
     # ayrı ayrı bölümler halinde konsola yaz
-    df_clf = df[df['horizon'].isin(['h1','h3','h5'])]
-    df_reg = df[df['horizon'].isin(['r3','r5'])]
+    df_clf = df[df['horizon'].isin(['h1', 'h3', 'h5'])]
+    df_reg = df[df['horizon'].isin(['r3', 'r5'])]
 
     print("\n=== CLASSIFICATION METRICS (AUC, ACC, PREC, REC) ===")
     print(df_clf.to_string(index=False))
