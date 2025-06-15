@@ -3,30 +3,30 @@ pandas==2.2.2
 numpy==1.26.4
 scipy==1.13.0
 python-dateutil==2.8.2
-tqdm==4.66.4          # progress bars
+tqdm==4.66.4
 
 # ───────── ML / Explainability ─────
 scikit-learn==1.4.2
-lightgbm==4.3.0       # CPU build (GPU not required on Streamlit Cloud)
+lightgbm==4.3.0
 shap==0.43.0
 joblib==1.4.2
 
-# ───────── Deep-Learning (CPU inference) ─────────
+# ───────── Deep-Learning (CPU) ─────
 tensorflow-cpu==2.15.0
-keras==2.15.0          # <─ sabitledik; Keras 3 yerine tf-uyumlu 2.15
-h5py==3.10.0           # (h5 model yüklerken güvenli)
+keras==2.15.0      # ← KESİN EKLE
+h5py==3.10.0       # güvenli .h5 yükleme
 
 # ───────── Visualisation ───────────
 matplotlib==3.8.4
 seaborn==0.13.2
-plotly==5.22.0        # interactive charts for the dashboard
+plotly==5.22.0
 
 # ───────── Dashboard ───────────────
 streamlit==1.33.0
 
 # ───────── Data sources & NLP ──────
 yfinance==0.2.38
-nltk==3.8.1           # VADER sentiment
+nltk==3.8.1
 
 # ───────── Misc helpers ────────────
 requests==2.31.0
