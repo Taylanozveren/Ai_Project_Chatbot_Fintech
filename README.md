@@ -1,83 +1,186 @@
-# Fintech Crypto Dashboard & Chatbot Project
+# 🚀 Crypto-Momentum Dashboard & Chatbot (v1.0 Final)
 
-## 🌟 Project Overview
-This project integrates cryptocurrency price data (Bitcoin and Ethereum) with sentiment analysis of news articles to build an end-to-end solution that includes:
-1. **Data Collection & Preprocessing**  
-2. **Exploratory Data Analysis (EDA)**  
-3. **Machine Learning (ML) & Deep Learning (DL) Modeling**  
-4. **Interactive Streamlit Dashboard**  
-5. **Large Language Model (LLM) Integration & Chatbot**
+## 📌 Project Overview
 
-The goal is to provide users with accurate price predictions, directional forecasts, sentiment-driven insights, and a conversational interface that answers questions based on both historical data and live analysis.
+The Crypto-Momentum Dashboard & Chatbot project is an integrated financial AI platform designed for cryptocurrency price forecasting, primarily focusing on Bitcoin (BTC) and Ethereum (ETH). It leverages historical price data and market sentiment from news and social media sources to provide real-time, actionable insights through Machine Learning (ML) and Deep Learning (DL) techniques.
 
----
+### Important Notices
 
-## 📊 Data Sets
-1. **Price Data (yfinance)**  
-   - Daily OHLCV data for BTC-USD and ETH-USD from January 1, 2018 to December 31, 2025.  
-   - Retrieved programmatically using `yfinance` in `src/data_processing.py`.  
+- ✅ **Price Data**: Continuously updated via automated pipelines (yfinance)
+- ⚠️ **Sentiment Data**: Static data (last update: May 25, 2025), limited due to external sources
+- ⚠️ **NLP & LLM Chatbot Modules**: Deferred to future phases
 
-2. **News Data (CryptoNewsDataset)**  
-   - Contains ~216,000 crypto-related news items spanning September 2017 to May 2025, covering 660+ cryptocurrencies.  
-   - Each record includes `newsDatetime`, `title`, `text`, `currency` (e.g., “BTC” or “ETH”), and user-based sentiment labels (positive/negative/important).  
-   - Place the raw CSV as `data/raw/crypto_news.csv`.  
+## 🎯 Objectives & Capabilities
 
-3. **Processed Daily Sentiment Summaries**  
-   - Filter news to include only BTC and ETH items.  
-   - Use VADER sentiment analysis to compute a compound sentiment score for each article.  
-   - Aggregate at daily granularity to produce `avg_sentiment` (mean compound score) and `news_count` (number of articles).  
+### ✅ Completed Features
 
-4. **Merged Price & Sentiment Data**  
-   - Join daily price data with daily sentiment summaries (left join by date).  
-   - Fill missing sentiment values forward (ffill) and assign `news_count = 0` for days without news.  
-   - Resulting files: `merged_btc.csv` and `merged_eth.csv`.  
+**Data Engineering & Preprocessing:**
+- Daily OHLCV data (2018–2025) from Yahoo Finance
+- Aggregated daily sentiment scores (limited to May 2025)
+- Feature engineering pipeline (lag features, technical indicators)
 
-5. **Feature-Engineered ML/DL Datasets**  
-   - Compute technical indicators:  
-     - MA7, MA30 (7-day and 30-day moving averages)  
-     - RSI14 (14-day Relative Strength Index)  
-     - MACD_diff (difference between MACD and signal line)  
-     - return_1d (daily percentage return)  
-   - For ML models: create `target_price` (next day’s closing price) and `target_dir` (binary direction: price_up = 1 if next day close > today).  
-   - Save as `*_ml_dataset.csv`.  
-   - For DL (LSTM/GRU) models: use a sliding window of length 14 to form X sequences and y targets, scale all features to [0,1] with MinMaxScaler, and save `*_X.npy`, `*_y.npy`, and `*_scaler.pkl`.  
+**Exploratory Data Analysis (EDA):**
+- Visualization of price-sentiment relationships
+- Identification of high-impact news periods
 
----
+**Machine Learning (ML):**
+- LightGBM Classifier: Price direction (binary classification for +2% moves over 1, 3, and 5 days)
+- Walk-forward validation (realistic backtests)
 
-## 🎯 Project Objectives
-- **Data Integration & Preprocessing**  
-  - Create a clean, joined time series of cryptocurrency prices and daily sentiment metrics.  
-  - Ensure no missing dates in crypto prices; fill or carry forward missing sentiment when necessary.  
+**Deep Learning (DL):**
+- Single-task & Multi-task LSTM: Capturing short/medium-term trends
+- 1D-CNN Architecture: Experimental study (not deployed due to lower performance)
 
-- **Exploratory Data Analysis (EDA)**  
-  - Visualize correlations between price and sentiment over time.  
-  - Identify periods with unusually high news volume and noticeable price movements.  
+**Explainability:**
+- SHAP analysis for feature importance (summary/waterfall plots)
 
-- **Machine Learning Models**  
-  - Train **Random Forest Regressors** to predict next-day closing price.  
-  - Train **Random Forest Classifiers** to predict next-day price direction (up/down).  
-  - Evaluate using RMSE, MAE for regression and Accuracy, Precision/Recall/F1 for classification.  
+**Strategy & Backtesting:**
+- Capital allocation simulations (theoretical returns vs. buy-and-hold)
 
-- **Deep Learning Models**  
-  - Build and train **LSTM** and **GRU** architectures for time series regression.  
-  - Include two stacked recurrent layers and dropout to mitigate overfitting.  
-  - Compare test RMSE with classical ML models to identify the best-performing approach.  
+**Interactive Dashboard:**
+- Real-time ML & DL predictions via Streamlit
+- Visual analytics (heatmaps, confusion matrices, equity curves)
 
-- **Interactive Dashboard**  
-  - Display daily closing price, average sentiment, and news count charts for both BTC and ETH.  
-  - Provide a “Next-Day Prediction” panel that shows model output (price or direction) depending on user-selected model.  
-  - Summarize test performance metrics in a table for easy comparison.  
+### 🛠️ Future Enhancements
 
-- **LLM-Enhanced Chatbot**  
-  - Embed news articles into a vector database (FAISS or ChromaDB).  
-  - On user queries, retrieve the top-k (e.g., k=5) most relevant news embeddings.  
-  - Generate context-aware answers using either Azure OpenAI (GPT-3.5 / GPT-4) or an open-source model (e.g., Llama 2, Falcon).  
-  - If the user asks “What will happen tomorrow?”, include the ML/DL model’s prediction in the prompt to the LLM, enabling a coherent, data-driven response.  
+- Real-time NLP sentiment analysis
+- LLM-powered conversational chatbot (FastAPI, Azure OpenAI / Hugging Face)
 
----
+## 📊 Technical Details & Architecture
 
-## ⚙️ Installation & Setup
-1. **Clone the Repository**  
+| Layer | Technologies & Libraries |
+|-------|-------------------------|
+| Data Engineering | Python, Pandas, NumPy, yfinance, Parquet |
+| ML Modeling | scikit-learn, LightGBM, joblib |
+| DL Modeling | TensorFlow, Keras |
+| Explainability | SHAP |
+| Dashboard | Streamlit, Plotly |
+| Chatbot (Planned) | FastAPI, Azure OpenAI / Hugging Face |
+| Storage | Parquet, CSV |
+| Version Control | Git, GitHub |
+
+## 📁 Folder Structure
+
+```
+Project/
+├── data/
+│   ├── raw/                  # Raw BTC/ETH/news data files
+│   ├── processed/            # Feature-engineered data
+│   └── dashboard_data/       # Streamlit-ready data
+│
+├── src/                      # Data pipeline & ML scripts
+│   ├── 01_data_processing.py
+│   ├── 02_merge_data.py
+│   ├── 03_data_validation.py
+│   ├── 04_clean_merged.py
+│   ├── 05_feature_engineering.py
+│   ├── 06_train_walkforward.py
+│   ├── 07_detailed_report.py
+│   ├── 08_threshold_tune.py
+│   ├── 09_prepare_dashboard_data.py
+│   ├── 11_shap_values.py
+│   └── backtest_helper.py
+│
+├── dl/                       # Deep Learning workflows
+│   ├── seq_window.py         # Sliding window data prep
+│   ├── train.py              # Training LSTM & CNN
+│   ├── lstm.py               # Single-task LSTM
+│   ├── lstm_multitask.py     # Multi-task LSTM
+│   ├── cnn.py                # CNN (experimental)
+│   ├── evaluate.py           # Evaluation scripts
+│   ├── outputs/              # Prepared datasets (.npz)
+│   └── scalers/              # Scaler objects (.pkl)
+│
+├── models/                   # ML (.pkl) & DL (.h5) models
+├── results/                  # Reports & visualizations
+├── notebooks/                # Jupyter notebooks (EDA)
+├── streamlit_app.py          # Streamlit dashboard
+└── requirements.txt          # Dependencies
+```
+
+## 🚀 Installation & Usage
+
+### Step 1: Clone Repository
+
+```bash
+git clone https://github.com/Taylanozveren/Ai_Project_Chatbot_Fintech.git
+cd Ai_Project_Chatbot_Fintech
+```
+
+### Step 2: Virtual Environment Setup
+
+```bash
+python -m venv venv
+source venv/bin/activate        # Windows: venv\Scripts\activate
+pip install -r requirements.txt
+```
+
+### Step 3: Run Data Pipeline & ML Scripts
+
+```bash
+python src/01_data_processing.py
+python src/02_merge_data.py
+python src/03_data_validation.py
+python src/04_clean_merged.py
+python src/05_feature_engineering.py
+python src/06_train_walkforward.py
+python src/07_detailed_report.py
+python src/08_threshold_tune.py
+python src/09_prepare_dashboard_data.py
+python src/11_shap_values.py
+```
+
+### Step 4: Train & Evaluate DL Models
+
+```bash
+python dl/seq_window.py
+python dl/train.py
+python dl/evaluate.py
+```
+
+### Step 5: Launch Streamlit Dashboard
+
+```bash
+streamlit run streamlit_app.py
+```
+
+## ⚠️ Current Limitations & Notices
+
+- **NLP Module**: Static sentiment data up to May 25, 2025 (due to external source constraints)
+- **Chatbot & LLM Integration**: Planned future enhancements (pending development)
+
+## 📅 Roadmap & Next Steps
+
+| Timeline | Milestone | Status |
+|----------|-----------|--------|
+| June 2025 | ML & DL Dashboard Finalized ✅ | Completed |
+| June 2025 | Deployment of Dashboard 🚀 | In Progress |
+| July 2025+ | Real-time NLP Integration 🛠️ | Planned |
+| July 2025+ | LLM-Powered Chatbot 🤖 | Planned |
+
+## 🤝 Contribution & Collaboration
+
+**Lead Developer & Architect**: Taylan Özveren  
+📧 **Contact**: taylan@example.com
+
+Contributions are highly encouraged:
+
+1. Fork the repository
+2. Create your branch:
    ```bash
-   git clone https://github.com/Taylanozveren/Ai_Project_Chatbot_Fintech.git
-   cd Ai_Project_Chatbot_Fintech
+   git checkout -b feature/MyNewFeature
+   ```
+3. Commit changes:
+   ```bash
+   git commit -m "Add MyNewFeature"
+   ```
+4. Push to branch:
+   ```bash
+   git push origin feature/MyNewFeature
+   ```
+5. Open Pull Request on GitHub
+
+## 📃 License
+
+This project is licensed under the MIT License - see LICENSE.md for details.
+
