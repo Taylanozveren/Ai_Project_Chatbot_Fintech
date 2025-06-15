@@ -12,31 +12,27 @@ __pycache__/
 # Proje: çıktılar, model dosyaları, analizler
 # =======================================
 
-# verilerin işlenmiş halleri
-data/processed/
-data/raw/*.csv
+# -- Ağır, yeniden üretilebilir veriler (repoya girmesin)
+#data/processed/
+data/raw/
 
-# model çıktıları, shap, scaler, pickle vs.
-models/
-*.pkl
-*.npy
-*.joblib
-*.txt
+# -- MODELLER ve DASHBOARD verisi (repoya GİRECEK) --
+# Bu satırları YORUMDA bırakıyoruz ↓
+# models/
+# *.pkl
+# *.npy
+# *.joblib
+# dashboard_data/
+# *.parquet
 
 # tahmin sonuçları, AUC, confusion, walk metrics...
-results/
+# results/        <-- eğer raporları da eklemek istemiyorsan aktif bırak
 
-# dashboard özel
-dashboard_data/
-*.parquet
-
-# jupyter notebook checkpointleri
+# =======================================
+# Jupyter / IDE / OS artıkları
+# =======================================
 .ipynb_checkpoints/
-
-# IDE klasörleri
 .vscode/
 .idea/
-
-# MacOS / Windows özel sistem dosyaları
 .DS_Store
 Thumbs.db
