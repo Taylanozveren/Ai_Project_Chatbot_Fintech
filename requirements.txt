@@ -1,32 +1,30 @@
-# ───────── core data stack ─────────
+# ───────── Core data stack ─────────
 pandas==2.2.2
 numpy==1.26.4
 scipy==1.13.0
 python-dateutil==2.8.2
-tqdm==4.66.4            # progress bars
+tqdm==4.66.4          # progress bars
 
-# ───────── ML / explainability ─────
+# ───────── ML / Explainability ─────
 scikit-learn==1.4.2
-lightgbm==4.3.0         # CPU derlemesi (GPU gerekmez)
+lightgbm==4.3.0       # CPU build (GPU not required on Streamlit Cloud)
 shap==0.43.0
 joblib==1.4.2
 
-# ───────── Deep-Learning (inference / retrain) ─────────
-tensorflow-cpu==2.15.0
-keras==3.3.1
-keras-core==0.1.7
+# ───────── Deep-Learning (CPU inference) ─────────
+tensorflow-cpu==2.15.0      # ships with tf-keras 2.15.0 — no extra Keras needed
 
-# ───────── visualisation ───────────
+# ───────── Visualisation ───────────
 matplotlib==3.8.4
 seaborn==0.13.2
-plotly==5.22.0           # dashboard interaktif grafikler
+plotly==5.22.0        # interactive charts for the dashboard
 
-# ───────── dashboard ───────────────
+# ───────── Dashboard ───────────────
 streamlit==1.33.0
 
-# ───────── data sources & NLP ──────
+# ───────── Data sources & NLP ──────
 yfinance==0.2.38
-nltk==3.8.1              # VADER sentiment
+nltk==3.8.1           # VADER sentiment
 
-# ───────── optional helpers ────────
-requests==2.31.0         # (yfinance & API çağrıları için güvenli)
+# ───────── Misc helpers ────────────
+requests==2.31.0

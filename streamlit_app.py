@@ -168,7 +168,7 @@ def load_walk_forward():
 def load_dl_model(coin_name, _file_hash=None):
     try:
         seq_data = np.load(DL_SEQ_DIR / f"{coin_name}_seq.npz")
-        dl_model = tf.keras.models.load_model(DL_MODEL_DIR / f"{coin_name}_lstm_mt.h5")
+        dl_model = tf.keras.models.load_model(DL_MODEL_DIR / f"{coin_name}_lstm_mt.keras")
         return seq_data, dl_model
     except Exception as e:
         st.error(f"❌ Error loading DL model: {e}")
