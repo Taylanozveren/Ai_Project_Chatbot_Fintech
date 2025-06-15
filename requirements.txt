@@ -12,8 +12,8 @@ shap==0.43.0
 joblib==1.4.2
 
 # ───────── Deep-Learning (inference / retrain) ─────────
-tensorflow-cpu==2.15.0   # Streamlit Cloud’da GPU yok, -cpu paketi daha hafif
-keras==2.15.0            # (TF içinden de gelir; versiyon eşleşsin)
+tensorflow-cpu==2.15.0
+keras==2.15.0
 
 # ───────── visualisation ───────────
 matplotlib==3.8.4
