@@ -2,20 +2,18 @@
 Professional Crypto-Momentum Dashboard
 Enhanced ML + DL Analytics Platform
 """
-# ── TensorFlow + eski (2.x) Keras yapılandırması ─────────────────────────
-# ── TensorFlow + eski (2.x) Keras yapılandırması ──
-import os
-os.environ["TF_USE_LEGACY_KERAS"] = "1"
-import tensorflow as tf        # tf.keras 2.15
-import sys                     #  ←  BU SATIRI GERİ EKLE !
-#  ⛔ Aşağıdaki alias’ları **SİL**
-# sys.modules["keras"] = tf.keras
-# sys.modules["keras.api._v2.keras"] = tf.keras
+
+# ── TensorFlow (tf-keras 2.15) ───────────────────────────────────────────
+import sys                      # önce sys
+import tensorflow as tf         # tf.keras kullanacağız; EKSTRA ayar gerekmiyor
+#  ⛔ TF_USE_LEGACY_KERAS satırını KALDIRDIK
+#  ⛔ Herhangi bir “alias” (sys.modules["keras"] …) TANIMLAMIYORUZ
 # ─────────────────────────────────────────────────────────────────────────
 
-# ↓ Artık diğer kütüphaneleri gönül rahatlığıyla içe aktarabilirsin
+# Diğer kütüphaneler
 import pathlib
 import streamlit as st
+import os
 import pandas as pd
 import numpy as np
 import joblib
@@ -24,6 +22,7 @@ import plotly.express as px
 from plotly.subplots import make_subplots
 from sklearn.metrics import roc_auc_score, accuracy_score, confusion_matrix
 from datetime import datetime, timedelta
+
 
 
 # ──────────────────────────────────────────────────────────────────────────
