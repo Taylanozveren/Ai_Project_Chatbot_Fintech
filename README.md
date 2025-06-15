@@ -161,7 +161,7 @@ streamlit run streamlit_app.py
 ## 🤝 Contribution & Collaboration
 
 **Lead Developer & Architect**: Taylan Özveren  
-📧 **Contact**: taylan@example.com
+📧 **Contact**: taylanozveren67@gmail.com
 
 Contributions are highly encouraged:
 
