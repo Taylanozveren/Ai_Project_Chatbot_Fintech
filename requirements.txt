@@ -12,7 +12,9 @@ shap==0.43.0
 joblib==1.4.2
 
 # ───────── Deep-Learning (CPU inference) ─────────
-tensorflow-cpu==2.15.0      # ships with tf-keras 2.15.0 — no extra Keras needed
+tensorflow-cpu==2.15.0
+keras==2.15.0          # <─ sabitledik; Keras 3 yerine tf-uyumlu 2.15
+h5py==3.10.0           # (h5 model yüklerken güvenli)
 
 # ───────── Visualisation ───────────
 matplotlib==3.8.4
