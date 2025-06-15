@@ -154,8 +154,8 @@ streamlit run streamlit_app.py
 | Timeline | Milestone | Status |
 |----------|-----------|--------|
 | June 2025 | ML & DL Dashboard Finalized ✅ | Completed |
-| June 2025 | Deployment of Dashboard 🚀 | In Progress |
-| July 2025+ | Real-time NLP Integration 🛠️ | Planned |
+| June 2025 | Deployment of Dashboard ✅ | Completed |
+| July 2025+ | Real-time NLP Integration (Currently Just Invalid csv Data 🛠️ | Planned |
 | July 2025+ | LLM-Powered Chatbot 🤖 | Planned |
 
 ## 🤝 Contribution & Collaboration
