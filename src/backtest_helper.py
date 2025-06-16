@@ -1,34 +1,51 @@
-import pandas as pd, numpy as np
+import pandas as pd
+import numpy as np
 
-def backtest(df: pd.DataFrame, thr: float = 0.02, fee: float = 0.0005) -> pd.DataFrame:
+def backtest(
+        df: pd.DataFrame,
+        thr: float = 0.02,
+        fee: float = 0.0005,
+        hold: int = 3          # ← kaç gün pozisyonda kalalım?
+) -> pd.DataFrame:
     """
-    Basit strateji back-test’i.
+    Basit long/flat strateji back-test'i.
 
-    Parametreler
-    ------------
-    df   : Date, Close, prob sütunlarını içerir
-    thr  : Sinyal eşiği  (prob > thr → long %100)
-    fee  : İşlem başı tek yön komisyon (ör. 5 bp)
+    Parameters
+    ----------
+    df   : DataFrame  -> en az ["Date", "Close", "prob"] sütunları
+    thr  : float      -> long sinyali eşiği  (prob > thr)
+    fee  : float      -> tek yön komisyon (örn. 0.0005 = 5 bps)
+    hold : int        -> sinyalden sonra pozisyonu kaç gün elde tut (horizon)
 
-    Döndürür
-    --------
-    pandas.DataFrame  →  ["Equity", "Buy&Hold"] indeks = Date
+    Returns
+    -------
+    DataFrame  -> ["Date", "Equity", "Buy&Hold"]
     """
-    # 1) Pozisyon sinyali
-    sig = (df["prob"] > thr).astype(int)
 
-    # 2) Günlük getiri
-    ret = df["Close"].pct_change().fillna(0)
+    ### 1) Pozisyon sinyali (horizon-aware)
+    sig = np.zeros(len(df), dtype=int)
+    raw_long = (df["prob"].values > thr).astype(int)
 
-    # 3) Strateji getirisi (komisyon dahil)
-    strat = (sig.shift() * ret) - fee * sig.diff().abs().clip(lower=0)
+    # aynı sinyali 'hold' gün ileriye taşı
+    for i in range(hold, len(sig)):
+        sig[i] = raw_long[i - hold]
 
-    # 4) Kümülatif sermaye eğrileri
-    equity = (1 + strat).cumprod()
-    bh = (1 + ret).cumprod()
+    ### 2) Günlük getiriler
+    ret = df["Close"].pct_change().fillna(0).values
 
-    # ► Date'i kaybetmeyelim; sütun olarak döndür
-    out = pd.DataFrame(
-        {"Date": df["Date"], "Equity": equity, "Buy&Hold": bh}
-    )
-    return out.dropna()
+    ### 3) Strateji getirisi + komisyon
+    # pozisyon değişimi  (|sig_t - sig_{t-1}|)  -> 0 veya 1
+    turn = np.abs(np.diff(np.insert(sig, 0, 0)))
+    strat_ret = sig * ret - fee * turn
+
+    ### 4) Kümülatif eğriler
+    equity   = np.cumprod(1 + strat_ret)
+    buyhold  = np.cumprod(1 + ret)
+
+    out = pd.DataFrame({
+        "Date": df["Date"].values,
+        "Equity": equity,
+        "Buy&Hold": buyhold
+    })
+
+    return out
