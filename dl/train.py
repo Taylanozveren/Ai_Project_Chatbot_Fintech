@@ -92,10 +92,10 @@ def main():
         callbacks=callbacks
     )
 
-    # ─────────── ✅ YENİ EKLENTİ ────────────
+    # ─────────── ✅ DÜZELTİLEN KISIM ────────────
     saved_dir = MODELS_DIR / f"{args.sym}_{args.arch}_tf"  # klasör adı
-    model.save(saved_dir, include_optimizer=False)  # SavedModel
-    # ────────────────────────────────────────
+    model.export(saved_dir)  # <──  model.save(...) DEĞİL!   🚀
+    # ────────────────────────────────────────────
 
     print(f"[✓] Trained {args.arch.upper()} for {args.sym.upper()} → "
           f".h5: {ckpt.name}  |  SavedModel: {saved_dir.name}")
