@@ -23,7 +23,29 @@ from plotly.subplots import make_subplots
 from sklearn.metrics import roc_auc_score, accuracy_score, confusion_matrix
 from datetime import datetime, timedelta
 
+# ── SavedModel uyumlu tahmin yardımcısı ────────────────────────────────
+def smart_predict(model, x):
+    """
+    Klasik .predict() varsa onu çağırır; yoksa SavedModel signature'ı ile
+    inference yapar ve np.ndarray / list döndürür.
+    """
+    # 1) Klasik Keras modeli
+    if hasattr(model, "predict"):
+        return model.predict(x, verbose=0)
 
+    # 2) SavedModel (UserObject)             ← bizim durumumuz
+    infer = (
+        model.signatures.get("serve")
+        or model.signatures.get("serving_default")
+        or list(model.signatures.values())[0]   # garanti olsun
+    )
+    out = infer(tf.constant(x))
+
+    # Çıktı dict ise sırasını koruyarak listeye çevir
+    if isinstance(out, dict):
+        return [v.numpy() for v in out.values()]
+    return out
+# ───────────────────────────────────────────────────────────────────────
 
 # ──────────────────────────────────────────────────────────────────────────
 #    🛈 Backtest & Strategy-Return Explanation (shared by ML & DL panels)
@@ -448,7 +470,8 @@ else:
     try:
         # 1) Read sequences
         seq = seq_data["X"]
-        all_preds = dl_model.predict(seq, verbose=0)
+        #all_preds = dl_model.predict(seq, verbose=0)
+        all_preds = smart_predict(dl_model, seq)
 
         # 2) Get 3-day (h3) long-prob series
         if isinstance(all_preds, list):
