@@ -224,26 +224,37 @@ def load_walk_forward():
 
 @st.cache_resource(ttl=60)
 def load_dl_model(coin_name, _file_hash=None):
-    from keras.layers import TFSMLayer
-
+    """
+    Load the DL sequence and model for the given coin.
+    Tries .h5 first; if missing, falls back to SavedModel via TFSMLayer or tf.saved_model.load.
+    """
     seq_path = DL_SEQ_DIR / f"{coin_name}_seq.npz"
     if not seq_path.exists():
         st.error(f"Seq dosyası yok: {seq_path}")
         return None, None
     seq_data = np.load(seq_path)
 
+    # 1) Try standard .h5 LSTM multi-task model
     h5_path = DL_MODEL_DIR / f"{coin_name}_lstm_mt.h5"
     if h5_path.exists():
         model = tf.keras.models.load_model(h5_path, compile=False)
         return seq_data, model
 
+    # 2) Fallback: TF SavedModel directory
     sm_dir = DL_MODEL_DIR / f"{coin_name}_lstm_mt_tf"
     if sm_dir.exists():
-        model = TFSMLayer(str(sm_dir), call_endpoint="serve")
+        try:
+            # If TFSMLayer is available, use it to call via serve signature
+            from keras.layers import TFSMLayer
+            model = TFSMLayer(str(sm_dir), call_endpoint="serve")
+        except ImportError:
+            # Otherwise, load the SavedModel directly
+            model = tf.saved_model.load(str(sm_dir))
         return seq_data, model
 
     st.error(f"Model bulunamadı: {h5_path.name} veya {sm_dir.name}")
     return None, None
+
 
 def create_signal_card(probability, threshold, signal_type="ML"):
     if probability > threshold:
