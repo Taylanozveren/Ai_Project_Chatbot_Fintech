@@ -25,26 +25,17 @@ from datetime import datetime, timedelta
 
 # ── SavedModel uyumlu tahmin yardımcısı ────────────────────────────────
 def smart_predict(model, x):
-    """
-    Klasik .predict() varsa onu çağırır; yoksa SavedModel signature'ı ile
-    inference yapar ve np.ndarray / list döndürür.
-    """
-    # 1) Klasik Keras modeli
     if hasattr(model, "predict"):
         return model.predict(x, verbose=0)
 
-    # 2) SavedModel (UserObject)             ← bizim durumumuz
-    infer = (
-        model.signatures.get("serve")
-        or model.signatures.get("serving_default")
-        or list(model.signatures.values())[0]   # garanti olsun
-    )
-    out = infer(tf.constant(x))
+    infer = (model.signatures.get("serve")
+             or model.signatures.get("serving_default")
+             or list(model.signatures.values())[0])
 
-    # Çıktı dict ise sırasını koruyarak listeye çevir
-    if isinstance(out, dict):
-        return [v.numpy() for v in out.values()]
-    return out
+    # çıktıyı sıraya sok
+    out = tf.nest.flatten(infer(tf.constant(x)))
+    return [o.numpy() for o in out]
+
 # ───────────────────────────────────────────────────────────────────────
 
 # ──────────────────────────────────────────────────────────────────────────
@@ -123,14 +114,18 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # Import backtest helper
+# Import backtest helper
 try:
     from backtest_helper import backtest
 except ImportError:
-    def backtest(df, threshold):
-        equity = df.copy()
-        equity["Equity"] = 1.0
-        equity["Buy&Hold"] = (df["Close"] / df["Close"].iloc[0])
-        return equity
+    # ↓ Stub – sadece structure tutmak için
+    def backtest(df, thr=0.02, fee=0.0005, hold=3):
+        out = df.copy()
+        # normal identifier     ▼               ▼  sözlükle ekleniyor
+        out = out.assign(Equity=1.0, **{"Buy&Hold": 1.0})
+        return out
+
+
 
 # Sidebar
 with st.sidebar:
@@ -437,7 +432,8 @@ if panel == "🤖 ML Panel":
                 try:
                     backtest_df = df[["Date", "Close", "prob"]].copy().dropna()
                     if len(backtest_df) > 0:
-                        equity = backtest(backtest_df, threshold)
+                        equity = backtest(backtest_df, thr=threshold, hold=3)   # fee default 0.0005
+
 
                         final_return = equity["Equity"].iloc[-1]
                         bh_return = equity["Buy&Hold"].iloc[-1]
@@ -504,8 +500,9 @@ else:
         valid_data = df_dl.dropna(subset=["prob"])
         if len(valid_data) > 0:
             equity_dl = backtest(
-                valid_data[["Date","Close","prob"]].copy(),
-                threshold
+                valid_data[["Date", "Close", "prob"]].copy(),
+                thr=threshold,
+                hold=3
             )
 
             # 9) Performance metrics
