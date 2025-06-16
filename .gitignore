@@ -1,6 +1,6 @@
-# =======================================
-# Python: temp/cache derleme dosyaları
-# =======================================
+# ===================================================
+#  PYTHON • geçici/derlenmiş dosyalar
+# ===================================================
 __pycache__/
 *.py[cod]
 *.pyo
@@ -8,29 +8,26 @@ __pycache__/
 *.pyc
 *.so
 
-# =======================================
-# Proje: çıktılar, model dosyaları, analizler
-# =======================================
+# ===================================================
+#  PROJE • veri ve model çıktıları
+# ===================================================
 
-# -- Ağır, yeniden üretilebilir veriler (repoya girmesin)
-#data/processed/
+# -- Ham / büyük veri  (repo-dışı)
 data/raw/
+# data/processed/   # ihtiyaç yoksa aç
 
-# -- MODELLER ve DASHBOARD verisi (repoya GİRECEK) --
-# Bu satırları YORUMDA bırakıyoruz ↓
-# models/
-# *.pkl
-# *.npy
-# *.joblib
-# dashboard_data/
-# *.parquet
+# -- MODELLER & dashboard dosyaları  (repo-içi)
+# SavedModel klasörleri dursun, .h5/.keras dosyaları gitmesin
+dl/outputs/models/*.h5
+dl/outputs/models/*.keras
+!dl/outputs/models/*_tf/**          # ⚠ klasörleri sakla
 
-# tahmin sonuçları, AUC, confusion, walk metrics...
-# results/        <-- eğer raporları da eklemek istemiyorsan aktif bırak
+# -- Rapor / sonuçlar (istersen hariç tut)
+# results/
 
-# =======================================
-# Jupyter / IDE / OS artıkları
-# =======================================
+# ===================================================
+#  Jupyter / IDE / OS artıkları
+# ===================================================
 .ipynb_checkpoints/
 .vscode/
 .idea/

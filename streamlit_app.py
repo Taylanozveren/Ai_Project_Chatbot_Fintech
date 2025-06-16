@@ -179,7 +179,7 @@ def load_dl_model(coin_name, _file_hash=None):
     try:
         seq_data = np.load(DL_SEQ_DIR / f"{coin_name}_seq.npz")
         dl_model = tf.keras.models.load_model(
-            DL_MODEL_DIR / f"{coin}_lstm_mt.h5",
+            DL_MODEL_DIR / f"{coin}_lstm_mt_tf",
             compile=False)  # 👈 eklendi
         return seq_data, dl_model
     except Exception as e:

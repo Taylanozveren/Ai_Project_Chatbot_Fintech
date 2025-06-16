@@ -92,7 +92,14 @@ def main():
         callbacks=callbacks
     )
 
-    print(f"[✓] Trained {args.arch.upper()} for {args.sym.upper()} → saved to {ckpt}")
+    # ─────────── ✅ YENİ EKLENTİ ────────────
+    saved_dir = MODELS_DIR / f"{args.sym}_{args.arch}_tf"  # klasör adı
+    model.save(saved_dir, include_optimizer=False)  # SavedModel
+    # ────────────────────────────────────────
+
+    print(f"[✓] Trained {args.arch.upper()} for {args.sym.upper()} → "
+          f".h5: {ckpt.name}  |  SavedModel: {saved_dir.name}")
+
 
 if __name__ == '__main__':
     main()
