@@ -3,25 +3,17 @@ import pandas as pd
 import numpy as np
 import plotly.graph_objects as go
 import plotly.express as px
-from datetime import datetime
-import sys
-import tensorflow as tf
-import pathlib
-import streamlit as st
-import os
-import pandas as pd
-import numpy as np
-import joblib
-import plotly.graph_objects as go
-import plotly.express as px
 from plotly.subplots import make_subplots
+import tensorflow as tf
+import joblib
+import pathlib
+import os
 from sklearn.metrics import roc_auc_score, accuracy_score, confusion_matrix
 from datetime import datetime, timedelta
-import streamlit as st
-
+import sys
 
 st.set_page_config(
-    page_title="🔮 AI Signals Dashboard",
+    page_title="🤖 AI Crypto Research Platform",
     page_icon="🚀",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -30,12 +22,9 @@ st.set_page_config(
 st.markdown(
     """
     <style>
-        
         #MainMenu {visibility: hidden;}
-        
         footer {visibility: hidden;}
 
-        
         div[role="tablist"] > button {
             font-size: 1.1rem !important;
             font-weight: 600 !important;
@@ -46,36 +35,56 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-
-st.sidebar.title("⚡ AI Signals")
-
+st.sidebar.title("🤖 AI Crypto Research")
 
 tabs = st.tabs(["📖 Technical Guide", "📊 Dashboard & Signals"])
 tab_guide, tab_dashboard = tabs
 
+
 def render_guide():
-    # CSS Styling (improved contrast and readability)
+    # CSS Styling
     st.markdown("""
     <style>
         .main-header {
-            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
-            padding: 2rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 2.5rem;
             border-radius: 15px;
             margin-bottom: 2rem;
             color: white;
             text-align: center;
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+        .main-header h1 {
+            margin-bottom: 0.5rem;
+            font-size: 2.2rem;
+        }
+        .main-header h2 {
+            font-size: 1.3rem;
+            opacity: 0.9;
+            margin-bottom: 0.5rem;
+        }
+        .main-header .research-badge {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 0.4rem 1rem;
+            margin: 0.3rem;
+            font-size: 0.85rem;
+            display: inline-block;
         }
         .warning-box {
-            background: #fff3cd;
-            border-left: 4px solid #ffc107;
-            padding: 1.5rem;
-            border-radius: 10px;
-            margin: 1rem 0;
-            color: #856404;
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+            padding: 2rem;
+            border-radius: 12px;
+            margin: 2rem 0;
+            color: white;
+            box-shadow: 0 8px 20px rgba(255, 107, 107, 0.3);
         }
         .warning-box h3 {
-            color: #856404;
+            color: white;
             margin-bottom: 1rem;
+        }
+        .warning-box ul li {
+            margin-bottom: 0.5rem;
         }
         .info-box {
             background: #d1ecf1;
@@ -204,9 +213,9 @@ def render_guide():
     st.markdown("""
     <div class="developer-info">
         <h3>🚀 Developed by Taylan Özveren</h3>
-        <p>Advanced Cryptocurrency Analytics Platform</p>
+        <p>AI-Powered Cryptocurrency Research Platform</p>
         <div class="contact-info">
-            📧 Contact: taylanozveren67@gmail.com | 💼 LinkedIn: www.linkedin.com/in/taylan-özveren-29b3aa250
+            📧 taylanozveren67@gmail.com | 💼 linkedin.com/in/taylan-özveren-29b3aa250
         </div>
     </div>
     """, unsafe_allow_html=True)
@@ -214,9 +223,14 @@ def render_guide():
     # Header
     st.markdown("""
     <div class="main-header">
-        <h1>🚀 Crypto-Momentum AI Dashboard</h1>
-        <h2>Technical Guide & AI Engineering Documentation</h2>
-        <p><em>Advanced Machine Learning & Deep Learning Platform for Cryptocurrency Analysis</em></p>
+        <h1>🤖 AI Crypto Research Platform</h1>
+        <h2>Machine Learning & Deep Learning Analytics</h2>
+        <p><em>Advanced AI System for Cryptocurrency Market Analysis</em></p>
+        <div style="margin-top: 1rem;">
+            <span class="research-badge">🧠 Neural Networks</span>
+            <span class="research-badge">📊 ML Analytics</span>
+            <span class="research-badge">🔬 R&D Project</span>
+        </div>
     </div>
     """, unsafe_allow_html=True)
 
@@ -224,13 +238,13 @@ def render_guide():
     st.markdown("""
     <div class="warning-box">
         <h3>⚠️ Important Legal Disclaimer</h3>
-        <p><strong>This platform is designed for research and development purposes only.</strong></p>
+        <p><strong>This is an AI Research & Development Project for educational purposes only.</strong></p>
         <ul>
-            <li>This does not constitute financial or investment advice</li>
+            <li>This platform does not constitute financial or investment advice</li>
+            <li>All outputs are for research and educational purposes only</li>
             <li>Consult professional financial advisors for investment decisions</li>
-            <li>Conduct your own risk analysis before making any investments</li>
-            <li>Past performance does not guarantee future results</li>
             <li>Cryptocurrency investments are highly volatile and risky</li>
+            <li>This project follows ethical AI development principles</li>
         </ul>
     </div>
     """, unsafe_allow_html=True)
@@ -1377,8 +1391,19 @@ def render_dashboard():
 
     else:
         st.markdown("## 🧠 Deep Learning Analysis")
-        with st.expander("🛈 How to interpret Strategy Returns", expanded=False):
-            st.markdown(INFO_TEXT)
+
+        # Geliştirilmiş açıklama bölümü
+        with st.expander("🛈 Deep Learning Model Information", expanded=False):
+            col1, col2 = st.columns(2)
+            with col1:
+                st.markdown("""
+                    **🔮 Model Type**: Neural Network  
+                    **📊 Input**: Sequential price data  
+                    **🎯 Output**: Price movement probability  
+                    **⏱️ Prediction**: Multi-horizon forecasting
+                    """)
+            with col2:
+                st.markdown(INFO_TEXT)
 
         try:
             seq = seq_data["X"]
@@ -1392,60 +1417,158 @@ def render_dashboard():
             np.save(f"dl/outputs/{coin}_dl_prob.npy", dl_prob_series)
 
             main_prob = float(dl_prob_series[-1])
+
+            # DL sinyal kartı
+            st.markdown("### 🎯 Current DL Signal")
             create_signal_card(main_prob, threshold, "DL")
 
+            # Ana performans metrikleri
+            if show_metrics or show_backtest:
+                st.markdown("---")
+                st.markdown("### 📈 Deep Learning Performance Analysis")
+
+                # Veri hazırlığı - mevcut kodu koruyarak
+                seq_len = seq.shape[1]
+                df_dl = df.copy()
+                df_dl["prob"] = np.nan
+
+                # CRITICAL FIX: Proper alignment of DL predictions with dates
+                if len(dl_prob_series) <= len(df_dl):
+                    start_idx = max(0, seq_len - 1)
+                    end_idx = min(len(df_dl), start_idx + len(dl_prob_series))
+                    valid_pred_count = end_idx - start_idx
+                    if valid_pred_count > 0:
+                        df_dl.iloc[start_idx:end_idx, df_dl.columns.get_loc("prob")] = dl_prob_series[:valid_pred_count]
+                else:
+                    pred_start = len(dl_prob_series) - len(df_dl) + max(0, seq_len - 1)
+                    df_dl.iloc[max(0, seq_len - 1):, df_dl.columns.get_loc("prob")] = dl_prob_series[pred_start:]
+
+                valid_data = df_dl.dropna(subset=["prob"])
+
+                if len(valid_data) > 0:
+                    # Performans hesaplamaları
+                    col1, col2 = st.columns(2)
+
+                    with col1:
+                        if show_metrics:
+                            st.markdown("#### 📊 Model Accuracy Metrics")
+
+                            # Test verileri için metrikler
+                            try:
+                                test_mask = df_dl["Date"] >= pd.to_datetime("2024-01-01")
+                                test_data = df_dl[test_mask].dropna(subset=["prob", "bin_h3_thr2"])
+
+                                if len(test_data) > 0:
+                                    y_true_dl = test_data["bin_h3_thr2"].astype(int)
+                                    y_prob_dl = test_data["prob"]
+                                    y_pred_dl = (y_prob_dl > threshold).astype(int)
+
+                                    auc_dl = roc_auc_score(y_true_dl, y_prob_dl)
+                                    acc_dl = accuracy_score(y_true_dl, y_pred_dl)
+
+                                    metric_col1, metric_col2 = st.columns(2)
+                                    metric_col1.metric("🎯 DL AUC Score", f"{auc_dl:.3f}")
+                                    metric_col2.metric("✅ DL Accuracy", f"{acc_dl:.3f}")
+
+                                    # Confusion matrix
+                                    st.plotly_chart(create_confusion_matrix(y_true_dl, y_pred_dl),
+                                                    use_container_width=True)
+                                else:
+                                    st.info("📅 Test data from 2024+ not available for DL metrics")
+                            except Exception as e:
+                                st.warning(f"⚠️ Metrics calculation: {str(e)[:50]}...")
+
+                    with col2:
+                        if show_backtest:
+                            st.markdown("#### 💹 Strategy Performance")
+
+                            try:
+                                equity_dl = backtest(
+                                    valid_data[["Date", "Close", "prob"]].copy(),
+                                    thr=threshold,
+                                    hold=dl_hold,
+                                    oos_start="2022-01-01"
+                                )
+
+                                final_return = equity_dl["Equity"].iloc[-1]
+                                bh_return = equity_dl["Buy&Hold"].iloc[-1]
+
+                                # Performans karşılaştırması
+                                alpha = final_return / bh_return if bh_return > 0 else final_return
+                                alpha_color = "🟢" if alpha > 1.1 else "🟡" if alpha > 0.9 else "🔴"
+
+                                perf_col1, perf_col2 = st.columns(2)
+                                perf_col1.metric("🎯 DL Strategy", f"{final_return:.2f}×")
+                                perf_col2.metric("📈 Buy & Hold", f"{bh_return:.2f}×")
+
+                                st.markdown(f"**Strategy Alpha**: {alpha_color} {alpha:.2f}×")
+                                st.markdown(f"🕒 **Hold Period**: {dl_hold} days")
+
+                                # Performans grafiği
+                                st.plotly_chart(
+                                    create_performance_chart(equity_dl, f"{coin.upper()} DL Strategy"),
+                                    use_container_width=True
+                                )
+                            except Exception as e:
+                                st.error(f"💹 Backtest error: {e}")
+
+            # Geliştirilmiş Multi-Horizon tahminler
+            st.markdown("---")
             st.markdown("### 🔮 Multi-Horizon Predictions")
 
-            seq_len = seq.shape[1]
+            # Son N tahmini göster
+            recent_preds = dl_prob_series[-min(10, len(dl_prob_series)):]
+            horizon_df = pd.DataFrame({
+                'Horizon': [f"T-{len(recent_preds) - i}" for i in range(len(recent_preds))],
+                'Probability': recent_preds,
+                'Signal': ['🟢 BUY' if p > threshold else '🔴 SELL' for p in recent_preds]
+            })
 
-            df_dl = df.copy()
-            df_dl["prob"] = np.nan
+            # Tablo formatında göster
+            st.dataframe(
+                horizon_df.style.format({'Probability': '{:.3f}'}),
+                use_container_width=True,
+                hide_index=True
+            )
 
-            # CRITICAL FIX: Proper alignment of DL predictions with dates
-            # DL predictions correspond to the sequence end dates
-            if len(dl_prob_series) <= len(df_dl):
-                # Align predictions to the CORRECT date range
-                # If we have sequence length N, prediction i corresponds to df row (seq_len + i - 1)
-                start_idx = max(0, seq_len - 1)  # Start after sequence build-up
-                end_idx = min(len(df_dl), start_idx + len(dl_prob_series))
-
-                # Only assign predictions where we have both data and predictions
-                valid_pred_count = end_idx - start_idx
-                if valid_pred_count > 0:
-                    df_dl.iloc[start_idx:end_idx, df_dl.columns.get_loc("prob")] = dl_prob_series[:valid_pred_count]
-            else:
-                # If more predictions than data, use the appropriate slice
-                pred_start = len(dl_prob_series) - len(df_dl) + max(0, seq_len - 1)
-                df_dl.iloc[max(0, seq_len - 1):, df_dl.columns.get_loc("prob")] = dl_prob_series[pred_start:]
-
-            valid_data = df_dl.dropna(subset=["prob"])
-            if len(valid_data) > 0:
-                equity_dl = backtest(
-                    valid_data[["Date", "Close", "prob"]].copy(),
-                    thr=threshold,
-                    hold=dl_hold,
-                    oos_start="2022-01-01"
-                )
-
-                final_return = equity_dl["Equity"].iloc[-1]
-                bh_return = equity_dl["Buy&Hold"].iloc[-1]
-
-                st.write(f"🕒 Hold param (DL): **{dl_hold} day**")
-                c1, c2 = st.columns(2)
-                c1.metric("🎯 DL Strategy Return", f"{final_return:.2f}×")
-                c2.metric("📈 Buy & Hold", f"{bh_return:.2f}×")
-
-                st.plotly_chart(
-                    create_performance_chart(equity_dl, f"{coin.upper()} DL Strategy"),
-                    use_container_width=True
-                )
-            else:
-                st.warning("No valid DL predictions available for backtesting")
+            # Trend analizi
+            if len(recent_preds) >= 5:
+                trend = np.polyfit(range(len(recent_preds)), recent_preds, 1)[0]
+                trend_emoji = "📈" if trend > 0.01 else "📉" if trend < -0.01 else "➡️"
+                st.markdown(f"**Prediction Trend**: {trend_emoji} {trend:+.4f}/period")
 
         except Exception as e:
             st.error(f"❌ DL prediction error: {e}")
-            st.info("Check DL model / sequence length configuration.")
+            st.info("💡 **Troubleshooting Tips:**")
+            st.markdown("""
+                - Check if DL model file exists
+                - Verify sequence data format
+                - Ensure sufficient historical data
+                - Review model input dimensions
+                """)
 
+        # Geliştirilmiş model bilgileri
+        with st.expander("🔧 Model Configuration & Technical Details"):
+            try:
+                col1, col2 = st.columns(2)
+                with col1:
+                    st.markdown("**📋 Current Settings:**")
+                    st.markdown(f"- **Threshold**: {threshold:.3f}")
+                    st.markdown(f"- **Hold Period**: {dl_hold} days")
+                    st.markdown(f"- **Sequence Length**: {seq.shape[1] if 'seq' in locals() else 'N/A'}")
+                    st.markdown(f"- **Features**: {seq.shape[2] if 'seq' in locals() else 'N/A'}")
+
+                with col2:
+                    st.markdown("**📊 Data Statistics:**")
+                    if 'dl_prob_series' in locals():
+                        st.markdown(f"- **Predictions**: {len(dl_prob_series):,}")
+                        st.markdown(f"- **Avg Probability**: {np.mean(dl_prob_series):.3f}")
+                        st.markdown(f"- **Std Deviation**: {np.std(dl_prob_series):.3f}")
+                        st.markdown(f"- **Buy Signals**: {np.sum(dl_prob_series > threshold):,}")
+            except Exception as e:
+                st.warning(f"Configuration details unavailable: {e}")
+
+        # Walk-forward analizi (mevcut kod korundu)
     walk_df = load_walk_forward()
     if not walk_df.empty:
         with st.expander("📈 Walk-Forward Analysis"):
@@ -1476,11 +1599,12 @@ def render_dashboard():
 
     st.markdown("---")
     st.markdown("""
-    <div style="text-align: center; color: #666; padding: 2rem;">
-        <p>🚀 <strong>Crypto-Momentum Dashboard</strong> | Built with Streamlit, LightGBM & TensorFlow</p>
-        <p>📊 Advanced ML/DL Analytics for Cryptocurrency Trading</p>
-    </div>
-    """, unsafe_allow_html=True)
+        <div style="text-align: center; color: #666; padding: 2rem;">
+            <p>🚀 <strong>Crypto-Momentum Dashboard</strong> | Built with Streamlit, LightGBM & TensorFlow</p>
+            <p>📊 Advanced ML/DL Analytics for Cryptocurrency Trading</p>
+        </div>
+        """, unsafe_allow_html=True)
+
 
 with tab_guide:
     render_guide()
