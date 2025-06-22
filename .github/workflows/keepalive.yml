@@ -1,0 +1,13 @@
+name: Keep Streamlit Alive
+
+on:
+  schedule:
+    - cron: '*/25 * * * *'  # Her 25 dakikada bir
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send ping to Streamlit app
+        run: |
+          curl -m 10 https://ai-crypto-dashboard-fintech.streamlit.app/ || echo "App not reachable"
