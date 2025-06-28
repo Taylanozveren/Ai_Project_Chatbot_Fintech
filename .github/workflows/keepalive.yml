@@ -2,7 +2,7 @@ name: Keep Streamlit Alive
 
 on:
   schedule:
-    - cron: '*/25 * * * *'  # Her 25 dakikada bir
+    - cron: '*/15 * * * *'  # every 15 minutes
 
 jobs:
   ping:
